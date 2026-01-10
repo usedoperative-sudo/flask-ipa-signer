@@ -16,6 +16,7 @@ A simple IPA Signer based in Python Flask library, zsign and free CloudFlare tun
 ```
 apt install -y g++ pkg-config libssl-dev libminizip-dev
 ```
+
 3.- Change current directory to `zsign/build/linux`
 4.- Build with `make clean && make`
 5.- Move or link compiled binary to `/usr/bin` or `/bin`
