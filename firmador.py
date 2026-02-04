@@ -97,7 +97,8 @@ def iniciar_tunel_cloudflare():
 def configurar():
     session_data["url"] = request.form.get('url', '').strip("/")
     session_data["bundle_id"] = request.form.get('bundle_id', '').strip()
-
+    session_data["password"] = request.form.get('password', '').strip()
+	
     print(f"⚙️ Configuración recibida: {session_data}")
     return "Configuración guardada", 200
 
@@ -143,7 +144,7 @@ def recibir_y_firmar():
     comando = [
         "/usr/bin/zsign",
         "-k", CERT_P12,
-        "-p", "passwd",  # ← ajusta si lo necesitas
+        "-p", session_data["password"], 
         "-m", CERT_MOBILEPROVISION,
         "-b", session_data["bundle_id"],
         "-n", original_name.replace(".ipa", ""),
