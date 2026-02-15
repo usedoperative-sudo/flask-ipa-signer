@@ -1,10 +1,12 @@
 # flask-ipa-signer
 
+**Designed for any Linux environment**
+
 **WIP FOR TERMUX**
 
 A simple IPA Signer based in Python Flask library, zsign and free CloudFlare tunnels
 
-*Requirements*
+*Requirements:*
 - `zsign` command in `/usr/bin` or `/bin`
 - `cloudflared` command in `/usr/bin` or `/bin`
 - Python Flask library installed
