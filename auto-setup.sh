@@ -57,6 +57,7 @@ else
 fi
 
 clear
+cd $HOME/flask-ipa-signer
 echo "Preparation done!"
 echo "SHOWING INSTALLED COMMANDS:"
 command -v zsign
