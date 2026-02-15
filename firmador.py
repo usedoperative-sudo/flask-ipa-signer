@@ -142,7 +142,7 @@ def recibir_y_firmar():
     # FIRMA CON ZSIGN
     # =====================================================
     comando = [
-        "/usr/bin/zsign",
+        "zsign",
         "-k", CERT_P12,
         "-p", session_data["password"], 
         "-m", CERT_MOBILEPROVISION,
