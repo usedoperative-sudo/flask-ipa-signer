@@ -65,6 +65,7 @@ https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-
 7.- Repeat from step 4 for both files
 
 8.- End the Python script with ^C (Ctrl + C)
+
 *Running the server*
 
 9.- Download this shortcut `LINK_NOT_READY`
@@ -79,8 +80,8 @@ https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-
 
 14.- Enter the Bundle ID of the desired app and .p12 password when prompted by the shortcut
 
-15.- A confirmation will be prompted, confirm
+15.- Now just wait
 
-16.- Wait some seconds, the IPA file will be signed, then a `itms-services://` link will show, press "OK" and then Chrome will open to install the app
+16.- Wait some seconds, the IPA file will be signed and a `itms-services://` will be generated, then Chrome will open to install the app
 
 17.- It should be noted that the file name will be taken as the app's name in the system by the script, but this does not affect its functionality.
