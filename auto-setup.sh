@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+DIRECTORY=$(pwd)
+
 echo "Detecting environment..."
 
 # Detect Termux (PREFIX típico)
@@ -18,14 +20,15 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     # Cloudflared en Termux (ya existe paquete)
     apt install -y cloudflared
 
-    cd $HOME
+    cd $DIRECTORY
     git clone https://github.com/zhlynn/zsign.git
     sed -i 's|/tmp|/data/data/com.termux/files/usr/tmo|g' zsign/src/common/fs.cpp
     cd zsign/build/linux
     make clean && make
 
-    mv $HOME/zsign/bin/zsign $PREFIX/bin/
+    mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
     chmod +x $PREFIX/bin/zsign
+    rm $DIRECTORY/zsign
 
 else
     echo "🟢 Linux normal detected!"
@@ -46,18 +49,19 @@ else
 
     brew install cloudflared
 
-    cd $HOME
+    cd $DIRECTORY
     git clone https://github.com/zhlynn/zsign.git
     cd zsign/build/linux
     make clean && make
 
     sudo mv /home/linuxbrew/.linuxbrew/opt/cloudflared/bin/cloudflared $PREFIX/bin/
-    sudo mv $HOME/zsign/bin/zsign $PREFIX/bin/
+    sudo mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
     sudo chmod +x $PREFIX/bin/zsign
+    rm $DIRECTORY/zsign
 fi
 
 clear
-cd $HOME/flask-ipa-signer
+cd $DIRECTORY
 echo "Preparation done!"
 echo "SHOWING INSTALLED COMMANDS:"
 command -v zsign
