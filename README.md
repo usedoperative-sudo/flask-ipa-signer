@@ -1,6 +1,6 @@
 # flask-ipa-signer
 
-**English description**
+**WIP FOR TERMUX**
 
 A simple IPA Signer based in Python Flask library, zsign and free CloudFlare tunnels
 
