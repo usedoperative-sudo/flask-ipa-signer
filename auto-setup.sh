@@ -6,7 +6,7 @@ echo "Detecting environment..."
 
 # Detect Termux (PREFIX típico)
 if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
-    echo "🟣 Termux detected!"
+    echo "🟣 Termux (experimental) detected!"
 
     apt install -y \
         clang \
