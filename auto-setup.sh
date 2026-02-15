@@ -28,7 +28,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
 
     mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
     chmod +x $PREFIX/bin/zsign
-    rm $DIRECTORY/zsign
+    rm -rf $DIRECTORY/zsign
 
 else
     echo "🟢 Linux normal detected!"
@@ -57,7 +57,7 @@ else
     sudo mv /home/linuxbrew/.linuxbrew/opt/cloudflared/bin/cloudflared $PREFIX/bin/
     sudo mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
     sudo chmod +x $PREFIX/bin/zsign
-    rm $DIRECTORY/zsign
+    rm -rf $DIRECTORY/zsign
 fi
 
 clear
