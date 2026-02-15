@@ -2,11 +2,13 @@
 
 DIRECTORY=$(pwd)
 
+
 echo "Detecting environment..."
 
 # Detect Termux (PREFIX típico)
 if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     echo "🟣 Termux (experimental) detected!"
+    PYTHON=python
 
     apt install -y \
         clang \
@@ -17,8 +19,9 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
         python \
         build-essential
 
-    # Cloudflared en Termux (ya existe paquete)
+    # Cloudflared y Flask en Termux (ya existe paquete)
     apt install -y cloudflared
+    pip install Flask
 
     cd $DIRECTORY
     git clone https://github.com/zhlynn/zsign.git
@@ -32,6 +35,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
 
 else
     echo "🟢 Linux normal detected!"
+    PYTHON=python3
 
     sudo apt install -y \
         g++ \
@@ -66,4 +70,4 @@ echo "Preparation done!"
 echo "SHOWING INSTALLED COMMANDS:"
 command -v zsign
 command -v cloudflared
-echo "Python lib - Flask"
+$PYTHON -c "import flask; print('Python lib - Flask')"
