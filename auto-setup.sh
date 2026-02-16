@@ -20,7 +20,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
         build-essential
 
     # Cloudflared y Flask en Termux (ya existe paquete)
-    apt install -y cloudflared
+    apt install cloudflared -y
     pip install Flask
 
     cd $DIRECTORY
