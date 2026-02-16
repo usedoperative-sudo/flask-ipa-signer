@@ -10,18 +10,17 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     echo "🟣 Termux (experimental) detected!"
     PYTHON=python
 
-    apt install -y \
+    pkg install -y \
         clang \
         make \
         git \
         *ssl* \
         *minizip* \
         python \
-        build-essential \
-        wget
+        build-essential
 
     # Cloudflared y Flask en Termux
-    wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64
+    pkg reinstall cloudflared -y
     pip install Flask
 
     cd $DIRECTORY
