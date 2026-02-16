@@ -25,7 +25,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
 
     cd $DIRECTORY
     git clone https://github.com/zhlynn/zsign.git
-    sed -i 's|/tmp|/data/data/com.termux/files/usr/tmo|g' zsign/src/common/fs.cpp
+    sed -i 's|/tmp|/data/data/com.termux/files/usr/tmp|g' zsign/src/common/fs.cpp
     cd zsign/build/linux
     make clean && make
 
