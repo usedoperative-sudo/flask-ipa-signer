@@ -17,10 +17,11 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
         *ssl* \
         *minizip* \
         python \
-        build-essential
+        build-essential \
+        wget
 
-    # Cloudflared y Flask en Termux (ya existe paquete)
-    apt install cloudflared -y
+    # Cloudflared y Flask en Termux
+    wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 -o $PREFIX/bin/cloudflared
     pip install Flask
 
     cd $DIRECTORY
@@ -30,6 +31,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     make clean && make
 
     mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
+    chmod +x $PREFIX/bin/cloudflared
     chmod +x $PREFIX/bin/zsign
     rm -rf $DIRECTORY/zsign
 
