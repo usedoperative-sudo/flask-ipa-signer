@@ -21,7 +21,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
         wget
 
     # Cloudflared y Flask en Termux
-    wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 -o $PREFIX/bin/cloudflared
+    wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64
     pip install Flask
 
     cd $DIRECTORY
@@ -31,6 +31,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     make clean && make
 
     mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
+    mv $DIRECTORY/cloudflared-linux-arm64 $PREFIX/bin/
     chmod +x $PREFIX/bin/cloudflared
     chmod +x $PREFIX/bin/zsign
     rm -rf $DIRECTORY/zsign
