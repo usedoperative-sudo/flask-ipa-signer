@@ -26,7 +26,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     cd $DIRECTORY
     git clone https://github.com/zhlynn/zsign.git
     sed -i 's|/tmp|/data/data/com.termux/files/usr/tmp|g' zsign/src/common/fs.cpp
-    cd zsign/build/linux
+    cd $DIRECTORY/zsign/build/linux
     make clean && make CXXFLAGS="-O3 -std=c++11 $CPPFLAGS" LDFLAGS="$LDFLAGS -lcrypto -lz -lminizip"
 
     mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
@@ -57,7 +57,7 @@ else
 
     cd $DIRECTORY
     git clone https://github.com/zhlynn/zsign.git
-    cd zsign/build/linux
+    cd $DIRECTORY/zsign/build/linux
     make clean && make
 
     sudo mv /home/linuxbrew/.linuxbrew/opt/cloudflared/bin/cloudflared $PREFIX/bin/
