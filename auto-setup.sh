@@ -25,9 +25,10 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
 
     cd $DIRECTORY
     git clone https://github.com/zhlynn/zsign.git
+    printf "#ifndef _INTS_H\n#define _INTS_H\n#include <stdint.h>\ntypedef uint64_t ui64_t;\ntypedef uint32_t ui32_t;\n#endif" > $PREFIX/include/minizip/ints.h
     sed -i 's|/tmp|/data/data/com.termux/files/usr/tmp|g' zsign/src/common/fs.cpp
     cd $DIRECTORY/zsign/build/linux
-    make clean && make CXXFLAGS="-O3 -std=c++11 $CPPFLAGS" LDFLAGS="$LDFLAGS -lcrypto -lz -lminizip"
+    make clean && make CXXFLAGS="-O3 -std=c++11 -I../../src -I../../src/common -I$PREFIX/include/minizip" LDFLAGS="-L$PREFIX/lib -lcrypto -lz -lminizip"
 
     mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
     mv $DIRECTORY/cloudflared-linux-arm64 $PREFIX/bin/
