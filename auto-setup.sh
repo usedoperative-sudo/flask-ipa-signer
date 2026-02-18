@@ -13,7 +13,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     pkg install -y \
         clang \
         make \
-        git \
+        pkg-config \
         *ssl* \
         *minizip* \
         python \
