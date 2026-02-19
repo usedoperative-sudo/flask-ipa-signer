@@ -44,7 +44,7 @@ else
         pkg-config \
         libssl-dev \
         libminizip-dev \
-        git \
+        build-essential \
         make \
         python3-flask
 
