@@ -31,7 +31,6 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     make clean && make CXXFLAGS="-O3 -std=c++11 -I../../src -I../../src/common -I$PREFIX/include/minizip" LDFLAGS="-L$PREFIX/lib -lcrypto -lz -lminizip"
 
     mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
-    mv $DIRECTORY/cloudflared-linux-arm64 $PREFIX/bin/
     chmod +x $PREFIX/bin/cloudflared
     chmod +x $PREFIX/bin/zsign
     rm -rf $DIRECTORY/zsign
