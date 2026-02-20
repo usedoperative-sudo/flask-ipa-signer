@@ -64,6 +64,7 @@ else
     sudo mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
     sudo chmod +x $PREFIX/bin/zsign
     rm -rf $DIRECTORY/zsign
+    rm -rf /home/linuxbrew
 fi
 
 clear
