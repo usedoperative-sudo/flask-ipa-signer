@@ -3,7 +3,7 @@ import os
 
 app = Flask(__name__)
 
-@app.route('/firmar', methods=['POST'])
+@app.route('/transferir', methods=['POST'])
 def firmar_ipa():
     # Esto nos ayudará a ver qué nombres está enviando el iPhone
     print("Archivos recibidos:", request.files)
@@ -20,7 +20,7 @@ def firmar_ipa():
     file.save(path)
     
     print(f"✅ ¡Éxito! Archivo guardado como: {path}")
-    return f"Archivo {file.filename} recibido y guardado en la tablet.", 200
+    return f"Archivo {file.filename} recibido y guardado en el servidor.", 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
