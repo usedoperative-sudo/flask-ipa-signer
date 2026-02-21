@@ -51,11 +51,11 @@ else
     touch /run/.containerenv
     NONINTERACTIVE=1 /bin/bash -c \
       "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    rm /run/.containerenv
 
     export PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
 
     brew install cloudflared
+    rm /run/.containerenv
 
     cd $DIRECTORY
     git clone https://github.com/zhlynn/zsign.git
