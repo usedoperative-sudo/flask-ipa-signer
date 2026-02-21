@@ -48,8 +48,10 @@ else
         make \
         python3-flask
 
+    touch /run/.containerenv
     NONINTERACTIVE=1 /bin/bash -c \
       "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    rm /run/.containerenv
 
     export PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
 
