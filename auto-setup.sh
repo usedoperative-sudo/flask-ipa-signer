@@ -62,10 +62,10 @@ else
     cd $DIRECTORY/zsign/build/linux
     make clean && make
 
-    sudo mv /home/linuxbrew/.linuxbrew/opt/cloudflared/bin/cloudflared $PREFIX/bin/
-    sudo mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
-    sudo chmod +x $PREFIX/bin/zsign
-    rm -rf $DIRECTORY/zsign
+    sudo mv /home/linuxbrew/.linuxbrew/opt/cloudflared/bin/cloudflared $PREFIX/local/bin/
+    sudo mv $DIRECTORY/zsign/bin/zsign $PREFIX/local/bin/
+    sudo chmod +x $PREFIX/local/bin/zsign
+    rm -rf $DIRECTORY/local/zsign
     rm -rf /home/linuxbrew
 fi
 
