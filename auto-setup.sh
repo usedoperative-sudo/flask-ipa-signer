@@ -46,7 +46,8 @@ else
         libminizip-dev \
         build-essential \
         make \
-        python3-flask
+        python3-flask \
+        zlib1g-dev
 
     touch /run/.containerenv
     NONINTERACTIVE=1 /bin/bash -c \
