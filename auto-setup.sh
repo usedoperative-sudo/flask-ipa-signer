@@ -68,7 +68,6 @@ else
     sudo chmod +x /usr/local/bin/zsign
     sudo chmod +x /usr/local/bin/cloudflared
     rm -rf $DIRECTORY/zsign
-    rm -rf /home/linuxbrew
 fi
 
 clear
