@@ -17,7 +17,8 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
         *ssl* \
         *minizip* \
         python \
-        build-essential
+        build-essential \
+        zlib1g-dev
 
     # Cloudflared y Flask en Termux
     pkg reinstall cloudflared -y
