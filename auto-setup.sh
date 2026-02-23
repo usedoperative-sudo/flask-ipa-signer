@@ -2,10 +2,9 @@
 
 DIRECTORY=$(pwd)
 
-
 echo "Detecting environment..."
 
-# Detect Termux (PREFIX típico)
+# --- BLOQUE TERMUX ---
 if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     echo "🟣 Termux (experimental) detected!"
     PYTHON=python
@@ -17,30 +16,32 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
         *ssl* \
         *minizip* \
         python \
-        build-essential \
-        zlib1g-dev
+        build-essential
 
-    # Cloudflared y Flask en Termux
+    # Cloudflared y Flask en Termux 
     pkg reinstall cloudflared -y
     pip install Flask
 
-    cd $DIRECTORY
+    cd "$DIRECTORY"
     git clone https://github.com/zhlynn/zsign.git
-    printf "#ifndef _INTS_H\n#define _INTS_H\n#include <stdint.h>\ntypedef uint64_t ui64_t;\ntypedef uint32_t ui32_t;\n#endif" > $PREFIX/include/minizip/ints.h
+    printf "#ifndef _INTS_H\n#define _INTS_H\n#include <stdint.h>\ntypedef uint64_t ui64_t;\ntypedef uint32_t ui32_t;\n#endif" > "$PREFIX/include/minizip/ints.h"
     sed -i 's|/tmp|/data/data/com.termux/files/usr/tmp|g' zsign/src/common/fs.cpp
-    cd $DIRECTORY/zsign/build/linux
+    cd "$DIRECTORY/zsign/build/linux"
     make clean && make CXXFLAGS="-O3 -std=c++11 -I../../src -I../../src/common -I$PREFIX/include/minizip" LDFLAGS="-L$PREFIX/lib -lcrypto -lz -lminizip"
 
-    mv $DIRECTORY/zsign/bin/zsign $PREFIX/bin/
-    chmod +x $PREFIX/bin/cloudflared
-    chmod +x $PREFIX/bin/zsign
-    rm -rf $DIRECTORY/zsign
+    mv "$DIRECTORY/zsign/bin/zsign" "$PREFIX/bin/"
+    chmod +x "$PREFIX/bin/cloudflared"
+    chmod +x "$PREFIX/bin/zsign"
+    rm -rf "$DIRECTORY/zsign"
 
+# --- BLOQUE LINUX NORMAL ---
 else
     echo "🟢 Linux normal detected!"
     PYTHON=python3
 
-    sudo apt install -y \
+    # Instalación de dependencias del sistema
+    sudo apt update && sudo apt install -y \
+        curl \
         g++ \
         pkg-config \
         libssl-dev \
@@ -50,31 +51,40 @@ else
         python3-flask \
         zlib1g-dev
 
-    touch /run/.containerenv
-    NONINTERACTIVE=1 /bin/bash -c \
-      "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    # NUEVA FORMA: Descarga de cloudflared sin Homebrew
+    ARCH=$(uname -m)
+    echo "🛠️ Downloading cloudflared for $ARCH..."
+    
+    if [[ "$ARCH" == "x86_64" ]]; then
+        URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64"
+    elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
+        URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64"
+    else
+        echo "❌ Architecture $ARCH not supported for automatic download."
+        exit 1
+    fi
 
-    export PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
+    # Descarga e instalación limpia
+    curl -L "$URL" -o $DIRECTORY/cloudflared
+    sudo mv cloudflared /usr/local/bin/cloudflared
+    sudo chmod +x /usr/local/bin/cloudflared
 
-    brew install cloudflared
-    rm /run/.containerenv
-
-    cd $DIRECTORY
+    # Compilación de zsign
+    cd "$DIRECTORY"
     git clone https://github.com/zhlynn/zsign.git
-    cd $DIRECTORY/zsign/build/linux
+    cd "$DIRECTORY/zsign/build/linux"
     make clean && make
 
-    sudo mv /home/linuxbrew/.linuxbrew/opt/cloudflared/bin/cloudflared /usr/local/bin/
-    sudo mv $DIRECTORY/zsign/bin/zsign /usr/local/bin/
+    sudo mv "$DIRECTORY/zsign/bin/zsign" /usr/local/bin/
     sudo chmod +x /usr/local/bin/zsign
-    sudo chmod +x /usr/local/bin/cloudflared
-    rm -rf $DIRECTORY/zsign
+    rm -rf "$DIRECTORY/zsign"
 fi
 
 clear
-cd $DIRECTORY
-echo "Preparation done!"
+cd "$DIRECTORY"
+echo "✅ Preparation done!"
+echo "---------------------------"
 echo "SHOWING INSTALLED COMMANDS:"
-command -v zsign
-command -v cloudflared
-$PYTHON -c "import flask; print('Python lib - Flask')"
+command -v zsign || echo "zsign not found"
+command -v cloudflared || echo "cloudflared not found"
+$PYTHON -c "import flask; print('Python lib - Flask')" 2>/dev/null || echo "Flask not found"
