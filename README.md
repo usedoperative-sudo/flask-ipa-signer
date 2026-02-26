@@ -56,7 +56,7 @@ Download the following Shortcuts on your iDevice:
 
 > [!TIP]
 > **For Remote Servers (GitHub Codespaces, Oracle, Google Colab):**
-> We recommend using a **VPN and SSH** together. This allows you to use `scp` or direct transfer to the VPN-assigned IP, avoiding the hassle of finding public IPs or opening ports.
+> I recommend using a **VPN and SSH** together. This allows you to use `scp` or direct transfer to the VPN-assigned IP, avoiding the hassle of finding public IPs or opening ports.
 
 ### 3. Signing and Installing IPAs
 
@@ -72,5 +72,5 @@ Download the following Shortcuts on your iDevice:
 ## ⚠️ Notes
 
 * **Language:** Currently, server logs are in Spanish (English translation coming soon!).
-* **App Names:** The script uses the filename as the app's display name, but this does not affect functionality.
+* **App Names:** The script uses the IPA filename as the app's display name, but this does not affect functionality.
 * **WIP:** Termux support is currently under development.
