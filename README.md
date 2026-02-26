@@ -1,89 +1,76 @@
-# flask-ipa-signer
+# flask-ipa-signer 🚀 
 
-**Designed for any Linux environment**
+**An automated IPA Signer for Linux environments.**
 
-**WIP FOR TERMUX**
+This project provides a simple IPA signing server using Python Flask, `zsign`, and Cloudflare tunnels to bypass SSL requirements for iOS installations.
 
-A simple IPA Signer based in Python Flask library, zsign and free CloudFlare tunnels
+---
 
-*Requirements:*
-- `zsign` command in `/usr/bin` or `/bin`
-- `cloudflared` command in `/usr/bin` or `/bin`
-- Python Flask library installed
-- Google Chrome installed in iDevice
+## ✨ Features
 
-*Compiling `zsign`*
+* **One-command setup:** Automatic dependency handling and compilation.
+* **Cloudflare Integration:** Secure tunnels for `itms-services://` compatibility.
+* **Easy Workflow:** Integrated with iOS Shortcuts for a seamless mobile experience.
 
-1.- Clone zhlynn's zsign repo from https://github.com/zhlynn/zsign
+---
 
-2.- Install dependencies
+## 🛠️ Quick Setup
+
+We have simplified the installation process. You no longer need to manually compile dependencies or install libraries.
+
+1. **Clone the repository:**
+```bash
+git clone https://github.com/YOUR_USERNAME/flask-ipa-signer.git
+cd flask-ipa-signer
+
 ```
-apt install -y g++ pkg-config libssl-dev libminizip-dev
+
+
+2. **Run the auto-setup script:**
+```bash
+chmod +x auto-setup.sh
+./auto-setup.sh
 ```
 
-3.- Change current directory to `zsign/build/linux`
 
-4.- Build with `make clean && make`
+*This script will install `zsign`, `cloudflared`, Flask, and all necessary dependencies automatically.*
 
-5.- Move or link compiled binary to `/usr/bin` or `/bin`
+---
 
-*Installing Flask*
+## 📱 How to Use
 
-Use `pip` or `apt` to install the Flask library
+### 1. Preparation
 
-`pip` method:
+Download the following Shortcuts on your iDevice:
 
-`pip install Flask`
+* [File Transfer Shortcut](https://drive.google.com/file/d/1R7qFfyKA1qbGeAWe7ZMyVVxp672OjToO/view?usp=drivesdk)
+* [Signing Shortcut](https://drive.google.com/file/d/1ms69iTsh1PF7wPSeBmWZIFQvJgE9bGRi/view?usp=drivesdk)
 
-`apt` method:
+### 2. Transferring Certificates (`.p12` & `.mobileprovision`)
 
-`apt install python3-flask -y`
+1. On the server, run:
+`python3 receptor.py`
+2. On your iDevice, run the **File Transfer Shortcut**.
+3. Enter your server's IP and select the files to upload.
+4. Once both files are transferred, stop the script on the server with `Ctrl + C`.
 
-*Installing `cloudflared`*
+> [!TIP]
+> **For Remote Servers (GitHub Codespaces, Oracle, Google Colab):**
+> We recommend using a **VPN and SSH** together. This allows you to use `scp` or direct transfer to the VPN-assigned IP, avoiding the hassle of finding public IPs or opening ports.
 
-1.- Download `cloudflared` binary from CloudFlare website, check for the correct arquitecture
-https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/
+### 3. Signing and Installing IPAs
 
-2.- Move or link downloaded binary to `/usr/bin` or `/bin`
+1. On the server, run:
+`python3 firmador.py`
+2. On your iDevice, run the **Signing Shortcut**.
+3. The server will generate a `https://*.trycloudflare.com` link. Copy and paste this URL into the Shortcut when prompted.
+4. Select your **IPA file**, enter the **Bundle ID**, and the **.p12 password**.
+5. Wait a few seconds. Google Chrome will automatically open to install your signed app via `itms-services`.
 
-*Downloading, preparing and running the signing server*
+---
 
-**Warning**: The Python logs will be in Spanish
+## ⚠️ Notes
 
-1.- Clone this repo on signing server
-
-2.- Download the next shortcut in your iDevice `LINK_NOT_READY`
-
-*Transfering files*
-
-3.- Run `python3 receptor.py` in the signing server
-
-4.- Run the downloaded shortcut
-
-5.- Write the server IP on the shortcut
-
-6.- Select thes files to transfer to the server (.mobileprovision and .p12 files), the file names don't matter
-
-7.- Repeat from step 4 for both files
-
-8.- End the Python script with ^C (Ctrl + C)
-
-*Running the server*
-
-9.- Download this shortcut `LINK_NOT_READY`
-
-10.- In the server run `python3 firmador.py`
-
-11.- In the iDevice run the downloaded Shortcut
-
-12.- The server will generate a `https://*.trycloudflare.com` link, send and copy the link in the Shortcut when it prompts a URL
-
-13.- When the shortcut requests to select a file, you must select the desired IPA file
-
-14.- Enter the Bundle ID of the desired app and .p12 password when prompted by the shortcut
-
-15.- Now just wait
-
-16.- Wait some seconds, the IPA file will be signed and a `itms-services://` will be generated, then Chrome will open to install the app
-
-17.- It should be noted that the file name will be taken as the app's name in the system by the script, but this does not affect its functionality.
+* **Language:** Currently, server logs are in Spanish (English translation coming soon!).
+* **App Names:** The script uses the filename as the app's display name, but this does not affect functionality.
+* **WIP:** Termux support is currently under development.
