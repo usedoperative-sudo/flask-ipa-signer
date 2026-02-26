@@ -20,7 +20,7 @@ I have simplified the installation process. You no longer need to manually compi
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/usedoperstive-sudo/flask-ipa-signer.git
+git clone https://github.com/usedoperative-sudo/flask-ipa-signer.git
 cd flask-ipa-signer
 
 ```
