@@ -16,7 +16,7 @@ This project provides a simple IPA signing server using Python Flask, `zsign`, a
 
 ## 🛠️ Quick Setup
 
-We have simplified the installation process. You no longer need to manually compile dependencies or install libraries.
+I have simplified the installation process. You no longer need to manually compile dependencies or install libraries.
 
 1. **Clone the repository:**
 ```bash
