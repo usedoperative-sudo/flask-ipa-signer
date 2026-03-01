@@ -1,4 +1,4 @@
-# flask-ipa-signer 🚀 
+# Flask IPA Signer 🚀 
 
 **An automated IPA Signer for Linux environments.**
 
@@ -74,3 +74,11 @@ Download the following Shortcuts on your iDevice:
 * **Language:** Currently, server logs are in Spanish (English translation coming soon!).
 * **App Names:** The script uses the IPA filename as the app's display name, but this does not affect functionality.
 * **WIP:** Termux support is currently under development.
+
+---
+
+## 🤝 Acknowledgements
+
+A huge thanks to the community for helping improve this tool. 
+
+Special shoutout to **u/Luiscorona511** from [Reddit](https://www.reddit.com/user/Luiscorona511), the project's very first tester! (Proof [here](https://drive.google.com/file/d/1ietX2xB13Dm46GW5Llx92oIPqgyCkWWA/view?usp=drivesdk).)
