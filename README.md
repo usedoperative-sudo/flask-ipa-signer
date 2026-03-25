@@ -71,9 +71,9 @@ Download the following Shortcuts on your iDevice:
 
 ## ⚠️ Notes
 
-* **Language:** Currently, server logs are in Spanish (English translation coming soon!).
+* ~**Language:** Currently, server logs are in Spanish~ [**English translation is here!**].
 * **App Names:** The script uses the IPA filename as the app's display name, but this does not affect functionality.
-* **WIP:** Termux support is currently under development.
+* ~**WIP:** Termux support is currently under development~ [**Termux is now fully supported**].
 
 ---
 
@@ -81,4 +81,4 @@ Download the following Shortcuts on your iDevice:
 
 A huge thanks to the community for helping improve this tool. 
 
-Special shoutout to **u/Luiscorona511** from [Reddit](https://www.reddit.com/user/Luiscorona511), the project's very first tester! (Proof [here](https://drive.google.com/file/d/1ietX2xB13Dm46GW5Llx92oIPqgyCkWWA/view?usp=drivesdk).)
+Special shoutout to **u/Luiscorona511** from [Reddit](https://www.reddit.com/user/Luiscorona511), the project's very first tester! (Proof [here](https://drive.google.com/file/d/1ietX2xB13Dm46GW5Llx92oIPqgyCkWWA/view?usp=drivesdk).) - Because of them I know the project works in iOS 26.4
