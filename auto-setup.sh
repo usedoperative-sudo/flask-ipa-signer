@@ -6,7 +6,8 @@ echo "Detecting environment..."
 
 # --- BLOQUE TERMUX ---
 if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
-    echo "🟣 Termux (experimental) detected!"
+    echo "🟣 Termux detected!"
+# Termux ahora esta soportado al 100% 🥳
     PYTHON=python
 
     pkg install -y \
