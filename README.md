@@ -72,7 +72,7 @@ Download the following Shortcuts on your iDevice:
 ## ⚠️ Notes
 
 * ~**Language:** Currently, server logs are in Spanish~ [**English translation is here!**].
-* **App Names:** The script uses the IPA filename as the app's display name, but this does not affect functionality.
+* ~**App Names:** The script uses the IPA filename as the app's display name, but this does not affect functionality~ [**Now this was solved too!**].
 * ~**WIP:** Termux support is currently under development~ [**Termux is now fully supported**].
 
 ---
