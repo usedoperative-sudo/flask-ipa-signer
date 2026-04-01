@@ -38,7 +38,7 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
 
 # --- BLOQUE LINUX NORMAL ---
 else
-    echo "🟢 Linux normal detected!"
+    echo "🟢 GNU/Linux detected!"
     PYTHON=python3
 
     # Instalación de dependencias del sistema
