@@ -44,7 +44,7 @@ chmod +x auto-setup.sh
 Download the following Shortcuts on your iDevice:
 
 * [File Transfer Shortcut](https://drive.google.com/file/d/1R7qFfyKA1qbGeAWe7ZMyVVxp672OjToO/view?usp=drivesdk)
-* [Signing Shortcut](https://drive.google.com/file/d/1ms69iTsh1PF7wPSeBmWZIFQvJgE9bGRi/view?usp=drivesdk)
+* [Signing Shortcut](https://drive.google.com/file/d/13D4QN6zFnkWcFZlUNVLBGiKGMBbEb5_b/view?usp=drivesdk)
 
 ### 2. Transferring Certificates (`.p12` & `.mobileprovision`)
 
