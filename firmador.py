@@ -4,14 +4,22 @@ import subprocess
 import os
 import uuid
 import re
+import threading
+import time
+import shutil
 
 app = Flask(__name__)
 
 # =========================================================
-# RUTA BASE AUTOMÁTICA (donde está ESTE script)
+# CONFIGURACIÓN DE USUARIO (Toggles)
+# =========================================================
+# Quieres ver las contraseñas en texto plano o prefieres jugar al agente secreto? 😎
+SHOW_SENSITIVE_LOGS = True 
+
+# =========================================================
+# CONFIGURACIÓN DE RUTAS
 # =========================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -22,6 +30,7 @@ def detectar_certificados(base_dir):
     p12 = None
     mobileprovision = None
 
+    print("🔐 Auto-detecting certificate files:")
     for f in os.listdir(base_dir):
         lf = f.lower()
         if lf.endswith(".p12"):
@@ -29,39 +38,48 @@ def detectar_certificados(base_dir):
         elif lf.endswith(".mobileprovision"):
             mobileprovision = os.path.join(base_dir, f)
 
-    if not p12:
-        raise RuntimeError("❌ No such .p12 file on current directory")
+    if not p12 or not mobileprovision:
+        raise RuntimeError("❌ Missing .p12 or .mobileprovision files.")
 
-    if not mobileprovision:
-        raise RuntimeError("❌ No such .mobileprovision file on current directory")
-
-    print("🔐 Auto-detecting certificate files:")
-    print("   📄 P12:", p12)
-    print("   📄 MobileProvision:", mobileprovision)
-
+    print(f"   📄 P12: {os.path.basename(p12)}")
+    print(f"   📄 MobileProvision: {os.path.basename(mobileprovision)}")
     return p12, mobileprovision
-
 
 CERT_P12, CERT_MOBILEPROVISION = detectar_certificados(BASE_DIR)
 
 # =========================================================
-# MEMORIA TEMPORAL
+# GESTIÓN DE SESIONES Y LIMPIEZA QUIRÚRGICA
 # =========================================================
-session_data = {
-    "url": "",
-    "bundle_id": ""
-}
+user_sessions = {}
 
+# Si Apple no limpia su desastre, alguien tiene que limpiarlo, ni eso pueden hacer 😒
+def tarea_limpieza_inteligente(intervalo=600, edad_maxima=3600):
+    while True:
+        time.sleep(intervalo)
+        if not os.path.exists(UPLOAD_DIR):
+            continue
+
+        ahora = time.time()
+        for folder_name in os.listdir(UPLOAD_DIR):
+            folder_path = os.path.join(UPLOAD_DIR, folder_name)
+            if os.path.isdir(folder_path):
+                if (ahora - os.path.getmtime(folder_path)) > edad_maxima:
+                    try:
+                        shutil.rmtree(folder_path)
+                        print(f"🧹 Cleanup: Deleted expired job [{folder_name}]")
+                    except: pass
+
+threading.Thread(target=tarea_limpieza_inteligente, daemon=True).start()
+
+# =========================================================
+# CLOUDFLARE TUNNEL
+# =========================================================
 PUBLIC_URL = None
 
-# =========================================================
-# CLOUDflare TUNNEL
-# =========================================================
 def iniciar_tunel_cloudflare():
     global PUBLIC_URL
-
-    print("☁️ Starting CloudFlare free tunnel...")
-
+    print("☁️ Starting CloudFlare tunnel...")
+    
     process = subprocess.Popen(
         ["cloudflared", "tunnel", "--url", "http://localhost:5000"],
         stdout=subprocess.PIPE,
@@ -69,57 +87,60 @@ def iniciar_tunel_cloudflare():
         text=True
     ) # SSL gratis para todos! 🥳
 
-    for _ in range(40):
+    # Solo queremos tu URL, gracias 🙂
+    for _ in range(100):
         line = process.stdout.readline()
-        if not line:
-            break
-
-        print(line.strip())
-
+        if not line: break
+        
         match = re.search(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", line)
         if match:
             PUBLIC_URL = match.group(0)
             break
 
     if not PUBLIC_URL:
-        raise RuntimeError("❌ Could not find CloudFlare URL")
+        raise RuntimeError("❌ Could not capture CloudFlare URL")
 
     print("\n" + "=" * 60)
-    print("✅ CloudFlare URL:")
+    print("✅ CloudFlare URL captured successfully:")
     print(f"👉 {PUBLIC_URL}")
-    print("📋 Paste this URL in the iPhone/iPad frontend")
+    print("📋 Paste this URL in the iDevice frontend")
     print("=" * 60 + "\n") # Si no como sabe el frontend a donde enviar la información? 🙃
 
 # =========================================================
 # ENDPOINTS
 # =========================================================
+
 @app.route('/config', methods=['POST'])
 def configurar():
-    session_data["url"] = request.form.get('url', '').strip("/")
-    session_data["bundle_id"] = request.form.get('bundle_id', '').strip()
-    session_data["password"] = request.form.get('password', '').strip()
-    print(f"⚙️ Detected Configuration: {session_data}")
-    return "Configuration saved", 200
-
+    device_id = request.form.get('device_name', 'Generic_Device').strip() # Ah, caray!, tu quien eres!? 😧
+    config = {
+        "url": request.form.get('url', '').strip("/"),
+        "bundle_id": request.form.get('bundle_id', '').strip(),
+        "password": request.form.get('password', '').strip()
+    }
+    user_sessions[device_id] = config
+    
+    if SHOW_SENSITIVE_LOGS:
+        print(f"⚙️ Detected Configuration for [{device_id}]: {config}")
+    else:
+        print(f"⚙️ Config updated for: {device_id} (Details hidden)")
+        
+    return f"Config saved for {device_id}", 200
 
 @app.route('/upload_ipa', methods=['POST'])
 def recibir_y_firmar():
+    device_id = request.form.get('device_name', 'Generic_Device').strip()
+    config = user_sessions.get(device_id)
 
-    if 'file' not in request.files:
-        return "No such file or directory ", 400 # Referencia a Linux 👈🤯
+    if not config and len(user_sessions) == 1:
+        config = list(user_sessions.values())[0]
 
-    if not session_data["url"] or not session_data["bundle_id"]:
-        return "Error: URL or Bundle ID are missing", 400
+    if not config:
+        return f"{device_id}.config: No such file or directory", 400 # Referencia a Linux 👈🤯
 
     file = request.files['file']
     original_name = secure_filename(file.filename)
 
-    if not original_name.endswith(".ipa"):
-        return "File is not a IPA", 400
-
-    # =====================================================
-    # JOB AISLADO
-    # =====================================================
     job_id = str(uuid.uuid4())
     job_dir = os.path.join(UPLOAD_DIR, job_id)
     os.makedirs(job_dir, exist_ok=True)
@@ -130,46 +151,29 @@ def recibir_y_firmar():
 
     file.save(original_path)
 
-    if not os.path.exists(original_path):
-        return "Error: Could not save IPA file", 500
+    print(f"🚀 Signing {original_name} for {device_id}...")
 
-    print("📂 CWD:", os.getcwd())
-    print("📦 IPA saved in:", original_path)
-    print(f"🚀 Signing {original_name}...")
-
-    # =====================================================
-    # FIRMA CON ZSIGN
-    # =====================================================
     comando = [
-        "zsign",
-        "-k", CERT_P12,
-        "-p", session_data["password"], 
-        "-m", CERT_MOBILEPROVISION,
-        "-b", session_data["bundle_id"],
-        "-o", signed_path,
-        original_path
+        "zsign", "-k", CERT_P12, "-p", config["password"],
+        "-m", CERT_MOBILEPROVISION, "-b", config["bundle_id"],
+        "-o", signed_path, original_path
     ]
 
-    process = subprocess.run(
-        comando,
-        capture_output=True,
-        text=True
-    )
-
-    print("🔹 zsign stdout:\n", process.stdout)
-    print("🔹 zsign stderr:\n", process.stderr)
+    process = subprocess.run(comando, capture_output=True, text=True)
+    
+    # Imprimiendo el testamento de zsign 🔹
+    print("🔹 zsign output:\n", process.stdout)
 
     if process.returncode != 0:
         return f"Sign Error:\n{process.stderr}", 500
 
-    generar_plist(session_data["url"], session_data["bundle_id"], signed_name, job_id)
+    generar_plist(config["url"], config["bundle_id"], signed_name, job_id)
 
     return (
         f"itms-services://?action=download-manifest&url="
-        f"{session_data['url']}/manifest/{job_id}",
+        f"{config['url']}/manifest/{job_id}",
         200
     )
-
 
 def generar_plist(base_url, bid, filename, job_id):
     content = f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -204,29 +208,17 @@ def generar_plist(base_url, bid, filename, job_id):
 </dict>
 </plist>
 """
-    job_dir = os.path.join(UPLOAD_DIR, job_id)
-    with open(os.path.join(job_dir, "manifest.plist"), "w") as f:
+    with open(os.path.join(UPLOAD_DIR, job_id, "manifest.plist"), "w") as f:
         f.write(content) # Para que la porquería de iPhone que va a instalar la app sepa donde buscarla 😒
-
 
 @app.route('/download/<job_id>/<filename>')
 def download(job_id, filename):
     return send_from_directory(os.path.join(UPLOAD_DIR, job_id), filename) # Aquí le servimos su IPA comensal 🧐
 
-
 @app.route('/manifest/<job_id>')
 def get_manifest(job_id):
     return send_from_directory(os.path.join(UPLOAD_DIR, job_id), "manifest.plist")
 
-
-# =========================================================
-# MAIN
-# =========================================================
 if __name__ == '__main__':
     iniciar_tunel_cloudflare()
-    app.run(
-        host='0.0.0.0',
-        port=5000,
-        debug=True,
-        use_reloader=False   # 🔑 evita doble Cloudflare en modo debug
-    )
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False) # 🔑 evita doble Cloudflare en modo debug
