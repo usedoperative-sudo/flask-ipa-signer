@@ -47,7 +47,7 @@ else
         g++ \
         pkg-config \
         libssl-dev \
-        libminizip-dev \
+        libminizip* \
         build-essential \
         make \
         python3-flask \
