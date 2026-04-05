@@ -61,11 +61,8 @@ else
 
     # 🏗️ Compilación de zsign (Limpia y directa)
     cd "$DIRECTORY"
-    rm -rf zsign # Borrar restos de intentos fallidos
-    git clone https://github.com/zhlynn/zsign.git
-    cd zsign/build/linux
     
-        # 🔧 Crear el shim de compatibilidad solo si es necesario
+        # 🔧 Ejecutar el shim de compatibilidad solo si es necesario
     if [ "$USE_SHIM" = true ]; then
         sudo bash $DIRECTORY/build_zsign.sh
     else
