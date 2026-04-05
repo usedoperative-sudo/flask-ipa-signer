@@ -40,7 +40,7 @@ else
 
     sudo apt update
     
-    # Identificar paquete de minizip
+    # 🕵️ Detectar qué versión de minizip está disponible
     if apt-cache show libminizip-ng-dev > /dev/null 2>&1; then
         MINIZIP_PKG="libminizip-ng-dev"
         USE_SHIM=false
@@ -52,9 +52,9 @@ else
     sudo apt install -y curl g++ pkg-config libssl-dev $MINIZIP_PKG \
         build-essential make python3-flask zlib1g-dev
 
-    # Solo crear el shim si falta minizip-ng
+    # 🔧 Crear el shim de compatibilidad solo si es necesario
     if [ "$USE_SHIM" = true ]; then
-        echo "🔧 Creating minizip-ng compatibility shim..."
+        echo "🔧 Applying minizip-ng shim..."
         sudo mkdir -p /usr/local/lib/pkgconfig
         LIB_PATH=$(gcc -print-multiarch)
         sudo bash -c "cat << EOF > /usr/local/lib/pkgconfig/minizip-ng.pc
@@ -69,28 +69,36 @@ Version: 3.0.0
 Libs: -L\${libdir} -lminizip
 Cflags: -I\${includedir}
 EOF"
+        # Exportar la ruta para que pkg-config lo encuentre
         export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
     fi
 
-    # Descarga de cloudflared
+    # 🛠️ Descargar cloudflared
     ARCH=$(uname -m)
-    [[ "$ARCH" == "x86_64" ]] && CBIN="amd64" || CBIN="arm64"
-    curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$CBIN" -o cloudflared
+    [[ "$ARCH" == "x86_64" ]] && BIN_ARCH="amd64" || BIN_ARCH="arm64"
+    curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$BIN_ARCH" -o cloudflared
     sudo mv cloudflared /usr/local/bin/cloudflared
     sudo chmod +x /usr/local/bin/cloudflared
 
-    # COMPILACIÓN LIMPIA
+    # 🏗️ Compilación de zsign (Limpia y directa)
     cd "$DIRECTORY"
-    rm -rf zsign # Borrar intentos previos para evitar basura
+    rm -rf zsign # Borrar restos de intentos fallidos
     git clone https://github.com/zhlynn/zsign.git
     cd zsign/build/linux
     
-    # USAMOS MAKE SIN BANDERAS MANUALES 
-    # El Makefile llamará a pkg-config y este usará nuestro shim
+    # IMPORTANTE: Ejecutamos make a secas. 
+    # El Makefile usará pkg-config internamente y encontrará nuestro shim.
     make clean && make
 
-    sudo mv "$DIRECTORY/zsign/bin/zsign" /usr/local/bin/zsign
-    sudo chmod +x /usr/local/bin/zsign
+    if [ -f "../../bin/zsign" ]; then
+        sudo mv "../../bin/zsign" /usr/local/bin/zsign
+        sudo chmod +x /usr/local/bin/zsign
+        echo "✅ zsign installed successfully!"
+    else
+        echo "❌ Error: zsign binary not found."
+        exit 1
+    fi
+
     cd "$DIRECTORY"
     rm -rf "$DIRECTORY/zsign"
 fi
