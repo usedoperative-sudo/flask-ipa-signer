@@ -40,34 +40,23 @@ else
 
     sudo apt update
     
-    # 🧠 DETECCIÓN INTELIGENTE DE MINIZIP-NG
-    # Intentamos ver si el paquete "ng" existe en los repositorios
+    # 🧠 DETECCIÓN DE MINIZIP-NG
     if apt-cache show libminizip-ng-dev > /dev/null 2>&1; then
-        echo "📦 libminizip-ng-dev found in repos, installing..."
+        echo "📦 libminizip-ng-dev found."
         MINIZIP_PKG="libminizip-ng-dev"
         USE_SHIM=false
     else
-        echo "⚠️ libminizip-ng-dev NOT found. Using legacy minizip + shim..."
+        echo "⚠️ Using legacy libminizip-dev + shim..."
         MINIZIP_PKG="libminizip-dev"
         USE_SHIM=true
     fi
 
-    sudo apt install -y \
-        curl \
-        g++ \
-        pkg-config \
-        libssl-dev \
-        $MINIZIP_PKG \
-        build-essential \
-        make \
-        python3-flask \
-        zlib1g-dev
+    sudo apt install -y curl g++ pkg-config libssl-dev $MINIZIP_PKG \
+        build-essential make python3-flask zlib1g-dev
 
-    # Aplicar el SHIM solo si es necesario (ej. en Ubuntu 22.04 Jammy)
     if [ "$USE_SHIM" = true ]; then
-        echo "🔧 Applying minizip-ng shim for compatibility..."
+        echo "🔧 Applying minizip-ng shim..."
         sudo mkdir -p /usr/local/lib/pkgconfig
-        # Determinamos la ruta de las librerías (x86_64 o aarch64)
         LIB_PATH=$(gcc -print-multiarch)
         sudo bash -c "cat << EOF > /usr/local/lib/pkgconfig/minizip-ng.pc
 prefix=/usr
@@ -76,37 +65,29 @@ libdir=\${exec_prefix}/lib/$LIB_PATH
 includedir=\${prefix}/include/minizip
 
 Name: minizip-ng
-Description: Minizip-ng shim for zsign (Legacy fallback)
+Description: Minizip-ng shim for zsign
 Version: 3.0.0
 Libs: -L\${libdir} -lminizip
 Cflags: -I\${includedir}
 EOF"
+        # 🔑 ESTA ES LA CLAVE: Hacer que el sistema vea el shim globalmente para esta sesión
+        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
     fi
 
-    # Descarga de cloudflared
+    # Descarga de cloudflared (simplificada)
     ARCH=$(uname -m)
-    echo "🛠️ Downloading cloudflared for $ARCH..."
-    if [[ "$ARCH" == "x86_64" ]]; then
-        URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64"
-    elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
-        URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64"
-    else
-        echo "❌ Architecture $ARCH not supported."
-        exit 1
-    fi
-
-    curl -L "$URL" -o $DIRECTORY/cloudflared
-    sudo mv $DIRECTORY/cloudflared /usr/local/bin/cloudflared
+    echo "🛠️ Downloading cloudflared..."
+    [[ "$ARCH" == "x86_64" ]] && BIN="amd64" || BIN="arm64"
+    curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$BIN" -o cloudflared
+    sudo mv cloudflared /usr/local/bin/cloudflared
     sudo chmod +x /usr/local/bin/cloudflared
 
-    # Compilación de zsign
+    # Compilación de zsign (Limpia, sin banderas que rompan el Makefile)
     cd "$DIRECTORY"
     git clone https://github.com/zhlynn/zsign.git
     cd "$DIRECTORY/zsign/build/linux"
     
-    # Si usamos el shim, nos aseguramos que pkg-config busque en /usr/local/lib/pkgconfig
-    export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
-    
+    # Solo llamamos a make. El Makefile usará pkg-config y encontrará nuestro shim.
     make clean && make
 
     sudo mv "$DIRECTORY/zsign/bin/zsign" /usr/local/bin/
@@ -114,7 +95,6 @@ EOF"
     rm -rf "$DIRECTORY/zsign"
 fi
 
-clear
 cd "$DIRECTORY"
 echo "✅ Preparation done!"
 echo "---------------------------"
