@@ -7,7 +7,6 @@ echo "Detecting environment..."
 # --- BLOQUE TERMUX ---
 if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     echo "🟣 Termux detected!"
-# Termux ahora esta soportado al 100% 🥳
     PYTHON=python
 
     pkg install -y \
@@ -20,7 +19,6 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
         python-pip \
         build-essential
 
-    # Cloudflared y Flask en Termux 
     pkg reinstall cloudflared -y
     pip install Flask
 
@@ -32,7 +30,6 @@ if [[ "$PREFIX" == "/data/data/com.termux/files/usr" ]]; then
     make clean && make CXXFLAGS="-O3 -std=c++11 -I../../src -I../../src/common -I$PREFIX/include/minizip" LDFLAGS="-L$PREFIX/lib -lcrypto -lz -lminizip"
 
     mv "$DIRECTORY/zsign/bin/zsign" "$PREFIX/bin/"
-    chmod +x "$PREFIX/bin/cloudflared"
     chmod +x "$PREFIX/bin/zsign"
     rm -rf "$DIRECTORY/zsign"
 
@@ -41,40 +38,75 @@ else
     echo "🟢 GNU/Linux detected!"
     PYTHON=python3
 
-    # Instalación de dependencias del sistema
-    sudo apt update && sudo apt install -y \
+    sudo apt update
+    
+    # 🧠 DETECCIÓN INTELIGENTE DE MINIZIP-NG
+    # Intentamos ver si el paquete "ng" existe en los repositorios
+    if apt-cache show libminizip-ng-dev > /dev/null 2>&1; then
+        echo "📦 libminizip-ng-dev found in repos, installing..."
+        MINIZIP_PKG="libminizip-ng-dev"
+        USE_SHIM=false
+    else
+        echo "⚠️ libminizip-ng-dev NOT found. Using legacy minizip + shim..."
+        MINIZIP_PKG="libminizip-dev"
+        USE_SHIM=true
+    fi
+
+    sudo apt install -y \
         curl \
         g++ \
         pkg-config \
         libssl-dev \
-        libminizip* \
+        $MINIZIP_PKG \
         build-essential \
         make \
         python3-flask \
         zlib1g-dev
 
-    # NUEVA FORMA: Descarga de cloudflared sin Homebrew
+    # Aplicar el SHIM solo si es necesario (ej. en Ubuntu 22.04 Jammy)
+    if [ "$USE_SHIM" = true ]; then
+        echo "🔧 Applying minizip-ng shim for compatibility..."
+        sudo mkdir -p /usr/local/lib/pkgconfig
+        # Determinamos la ruta de las librerías (x86_64 o aarch64)
+        LIB_PATH=$(gcc -print-multiarch)
+        sudo bash -c "cat << EOF > /usr/local/lib/pkgconfig/minizip-ng.pc
+prefix=/usr
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib/$LIB_PATH
+includedir=\${prefix}/include/minizip
+
+Name: minizip-ng
+Description: Minizip-ng shim for zsign (Legacy fallback)
+Version: 3.0.0
+Libs: -L\${libdir} -lminizip
+Cflags: -I\${includedir}
+EOF"
+    fi
+
+    # Descarga de cloudflared
     ARCH=$(uname -m)
     echo "🛠️ Downloading cloudflared for $ARCH..."
-    
     if [[ "$ARCH" == "x86_64" ]]; then
         URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64"
     elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
         URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64"
     else
-        echo "❌ Architecture $ARCH not supported for automatic download."
+        echo "❌ Architecture $ARCH not supported."
         exit 1
     fi
 
-    # Descarga e instalación limpia
     curl -L "$URL" -o $DIRECTORY/cloudflared
-    sudo mv cloudflared /usr/local/bin/cloudflared
+    sudo mv $DIRECTORY/cloudflared /usr/local/bin/cloudflared
     sudo chmod +x /usr/local/bin/cloudflared
 
     # Compilación de zsign
     cd "$DIRECTORY"
     git clone https://github.com/zhlynn/zsign.git
     cd "$DIRECTORY/zsign/build/linux"
+    
+    # Si usamos el shim, nos aseguramos que pkg-config busque en /usr/local/lib/pkgconfig
+    export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+    
     make clean && make
 
     sudo mv "$DIRECTORY/zsign/bin/zsign" /usr/local/bin/
