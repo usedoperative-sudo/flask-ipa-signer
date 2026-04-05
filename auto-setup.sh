@@ -67,7 +67,7 @@ else
     
         # 🔧 Crear el shim de compatibilidad solo si es necesario
     if [ "$USE_SHIM" = true ]; then
-        sudo bash build_zsign.sh
+        sudo bash $DIRECTORY/build_zsign.sh
     else
         make clean && make
     fi
