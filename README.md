@@ -74,7 +74,7 @@ Download the following Shortcuts on your iDevice:
 * ~**Language:** Currently, server logs are in Spanish~ [**English translation is here!**].
 * ~**App Names:** The script uses the IPA filename as the app's display name, but this does not affect functionality~ [**Now this was solved too!**].
 * ~**WIP:** Termux support is currently under development~ [**Termux is now fully supported**].
-
+* **`zsign` updated:** Zhlynn (the author of zsign) updated their project; Flask IPA Signer has already been adapted for desktop Linux environments, but I cannot currently verify compatibility with Android (Termux) environments.
 ---
 
 ## 🤝 Acknowledgements
