@@ -40,7 +40,7 @@ else
 
     sudo apt update
     
-    # 🕵️ Detectar qué versión de minizip está disponible
+    # 🕵️ Detectar versión de minizip
     if apt-cache show libminizip-ng-dev > /dev/null 2>&1; then
         MINIZIP_PKG="libminizip-ng-dev"
         USE_SHIM=false
@@ -59,17 +59,27 @@ else
     sudo mv cloudflared /usr/local/bin/cloudflared
     sudo chmod +x /usr/local/bin/cloudflared
 
-    # 🏗️ Compilación de zsign (Limpia y directa)
+    # 🏗️ Compilación de zsign
     cd "$DIRECTORY"
+    rm -rf zsign
     
-        # 🔧 Ejecutar el shim de compatibilidad solo si es necesario
     if [ "$USE_SHIM" = true ]; then
-        sudo bash $DIRECTORY/build_zsign.sh
+        echo "🚀 Running external build script for legacy minizip..."
+        chmod +x build_zsign.sh
+        ./build_zsign.sh
     else
+        echo "🏗️ Building zsign with native minizip-ng..."
+        git clone https://github.com/zhlynn/zsign.git
+        cd zsign/build/linux
         make clean && make
     fi
 
-    cd "$DIRECTORY"
+    # Mover el binario final si existe
+    if [ -f "$DIRECTORY/zsign/bin/zsign" ]; then
+        sudo mv "$DIRECTORY/zsign/bin/zsign" /usr/local/bin/zsign
+        sudo chmod +x /usr/local/bin/zsign
+    fi
+    
     rm -rf "$DIRECTORY/zsign"
 fi
 
