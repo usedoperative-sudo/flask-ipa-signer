@@ -52,27 +52,6 @@ else
     sudo apt install -y curl g++ pkg-config libssl-dev $MINIZIP_PKG \
         build-essential make python3-flask zlib1g-dev
 
-    # 🔧 Crear el shim de compatibilidad solo si es necesario
-    if [ "$USE_SHIM" = true ]; then
-        echo "🔧 Applying minizip-ng shim..."
-        sudo mkdir -p /usr/local/lib/pkgconfig
-        LIB_PATH=$(gcc -print-multiarch)
-        sudo bash -c "cat << EOF > /usr/local/lib/pkgconfig/minizip-ng.pc
-prefix=/usr
-exec_prefix=\${prefix}
-libdir=\${prefix}/lib/$LIB_PATH
-includedir=\${prefix}/include/minizip
-
-Name: minizip-ng
-Description: Compatibility shim for zsign
-Version: 3.0.0
-Libs: -L\${libdir} -lminizip
-Cflags: -I\${includedir}
-EOF"
-        # Exportar la ruta para que pkg-config lo encuentre
-        export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
-    fi
-
     # 🛠️ Descargar cloudflared
     ARCH=$(uname -m)
     [[ "$ARCH" == "x86_64" ]] && BIN_ARCH="amd64" || BIN_ARCH="arm64"
@@ -86,17 +65,11 @@ EOF"
     git clone https://github.com/zhlynn/zsign.git
     cd zsign/build/linux
     
-    # IMPORTANTE: Ejecutamos make a secas. 
-    # El Makefile usará pkg-config internamente y encontrará nuestro shim.
-    make clean && make
-
-    if [ -f "../../bin/zsign" ]; then
-        sudo mv "../../bin/zsign" /usr/local/bin/zsign
-        sudo chmod +x /usr/local/bin/zsign
-        echo "✅ zsign installed successfully!"
+        # 🔧 Crear el shim de compatibilidad solo si es necesario
+    if [ "$USE_SHIM" = true ]; then
+        sudo bash build_zsign.sh
     else
-        echo "❌ Error: zsign binary not found."
-        exit 1
+        make clean && make
     fi
 
     cd "$DIRECTORY"
