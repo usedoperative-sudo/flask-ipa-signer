@@ -73,7 +73,7 @@ else
         USE_SHIM=true
     fi
 
-    sudo apt install -y curl g++ pkg-configlibssl-dev $MINIZIP_PKG \
+    sudo apt install -y curl g++ pkg-config libssl-dev $MINIZIP_PKG \
         build-essential make python3-flask zlib1g-dev
 
     # 🛠​️ Descargar cloudflared
