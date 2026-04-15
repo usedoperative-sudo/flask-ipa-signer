@@ -11,7 +11,7 @@ This project provides a simple IPA signing server using Python Flask, `zsign`, a
 * **One-command setup:** Automatic dependency handling and compilation.
 * **Cloudflare Integration:** Secure tunnels for `itms-services://` compatibility.
 * **Easy Workflow:** Integrated with iOS Shortcuts for a seamless mobile experience.
-
+* **OCSP Checker:** Use zsign's new feature to verify the validity of previously signed IPA files, and to verify the OCSP status of the certificate used by the server for signing, and external certificates.
 ---
 
 ## 🛠️ Quick Setup
@@ -43,16 +43,15 @@ chmod +x auto-setup.sh
 
 Download the following Shortcuts on your iDevice:
 
-* [File Transfer Shortcut](https://drive.google.com/file/d/1R7qFfyKA1qbGeAWe7ZMyVVxp672OjToO/view?usp=drivesdk)
-* [Signing Shortcut](https://drive.google.com/file/d/13D4QN6zFnkWcFZlUNVLBGiKGMBbEb5_b/view?usp=drivesdk)
+* [File Transfer Shortcut](https://drive.google.com/file/d/1R7qFfyKA1qbGeAWe7ZMyVVxp672OjToO/view?usp=drivesdk) (**Outdated**)
+* [Signing Shortcut](https://www.icloud.com/shortcuts/00996ede9a144d5fbbbb142d8ea1c335)
 
-### 2. Transferring Certificates (`.p12` & `.mobileprovision`)
+### 2. Transferring Certificates (`.p12` & `.mobileprovision`, **Shortcut Outdated!!**)
 
-1. On the server, run:
-`python3 receptor.py`
-2. On your iDevice, run the **File Transfer Shortcut**.
-3. Enter your server's IP and select the files to upload.
-4. Once both files are transferred, stop the script on the server with `Ctrl + C`.
+1. Open a SSH server pn the signing server
+2. On your iDevice, use a terminal emulator or a SFTP transfer app.
+3. Find your server's local IP, then send the files with the app interface/`scp` command to this project root directory.
+4. Once both files are transferred, stop the SSH server on the signing server with `Ctrl + C` or `pkill` command.
 
 > [!TIP]
 > **For Remote Servers (GitHub Codespaces, Oracle, Google Colab):**
