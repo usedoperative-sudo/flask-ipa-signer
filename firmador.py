@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, Response
 from werkzeug.utils import secure_filename
 import subprocess
 import os
@@ -112,7 +112,7 @@ def iniciar_tunel_cloudflare():
 
 @app.route('/config', methods=['POST'])
 def configurar():
-    device_id = request.form.get('device_name', 'Generic_Device').strip() # Ah, caray!, tu quien eres!? 😧
+    device_id = request.form.get('device_name', 'Generic_Device').strip() # Ah, caray!, y tu quien eres!? 😧
     config = {
         "url": request.form.get('url', '').strip("/"),
         "bundle_id": request.form.get('bundle_id', '').strip(),
@@ -126,6 +126,41 @@ def configurar():
         print(f"⚙️ Config updated for: {device_id} (Details hidden)")
         
     return f"Config saved for {device_id}", 200
+
+@app.route('/check', methods=['POST'])
+def check_status():
+    """
+    Verifica archivos o el certificado del server devolviendo texto plano.
+    """
+    # Caso 1: Recibimos un archivo IPA o MobileProvision, no voy a soportar archivos .p12 porque ya me dio flojera integrar la logica para la contraseña 🥲 
+    if 'ipa' in request.files:
+        file = request.files['ipa']
+        job_id = f"check_{uuid.uuid4().hex[:8]}"
+        temp_dir = os.path.join(UPLOAD_DIR, job_id)
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        file_path = os.path.join(temp_dir, secure_filename(file.filename))
+        file.save(file_path)
+        
+        print(f"🔍 Checking external file signature: {file.filename}")
+        comando = ["zsign", "-C", file_path]
+        
+        process = subprocess.run(comando, capture_output=True, text=True)
+        shutil.rmtree(temp_dir) 
+        
+        return Response(process.stdout, mimetype='text/plain')
+
+    # Caso 2: Recibimos password para checar el P12 del servidor, a ver si aun no le toca convertirse en bytes muertos... 😵
+    elif 'password' in request.form:
+        pwd = request.form.get('password')
+        print(f"🔍 Checking Server P12 OCSP status...")
+        
+        comando = ["zsign", "-C", CERT_P12, "-p", pwd]
+        process = subprocess.run(comando, capture_output=True, text=True)
+        
+        return Response(process.stdout, mimetype='text/plain')
+
+    return "Error: No valid input. Send 'ipa' file or 'password' field.", 400 # Me ahorraré comentarios... 🤦‍♀️
 
 @app.route('/upload_ipa', methods=['POST'])
 def recibir_y_firmar():
